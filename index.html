@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<title>Cards</title>
+</head>
+<body>
+	<div class="gameInfoWrap">
+		<h2>Игра "Карточки"</h2>
+		<div class="instructions">
+			<p>Перед началом игры нужно выбрать режим</p>
+			<p>Режимов два: с таймером обратного отсчета, подсчетом длительности раунда в секундах для таблицы рекордов</p>
+			<p>После вы указываете размер поля или уровень сложности (простой, средний, сложный)</p>
+			<p>Простой уровень: по умолчанию используется случайное количество до 6 пар карт и нужно находить одинаковые 2 карты</p>
+			<p>Средний уровень: по умолчанию используется случайное количество 10-30 троек карт и нужно найти одинаковые 3 карты</p>
+			<p>Сложный уровень: по умолчанию используется случайное количество 10-20 четверок карт и нужно найти одинаковые 4 карты</p>
+			<p>Количество карт выдается всегда случайно в заданном диапазоне</p>
+		</div>
+		<input type="text" id="inputPlayerName" placeholder="Ваше имя">
+		<input type="button" class="removeGameInfo" value="Начать" disabled><br>
+		<input type="text" id="inputServerPlayerName" placeholder="Ваше имя">
+		<input type="text" id="inputId" placeholder="id игры">
+		<input type="button" id="joinGame" value="Присоединиться к игре" disabled>
+	</div>
+	<div class="chooseModeWrap off">
+		<h3>Выберите режим игры</h3>
+		<form>
+			<input name="mode" type="radio" id="mode1">
+			<label for="mode1">Таймер обратного отсчета</label>
+			<input name="mode" type="radio" id="mode2">
+			<label for="mode2">Подсчет длительности раунда</label><br><br>
+			<input type="button" value="Продолжить" class="removeChooseMode">
+		</form>
+	</div>
+	<div class="chooseTypeWrap off">
+		<h3>Выберите количество карт, либо уровень сложности</h3>
+		<form>
+			<input name="type" type="radio" id="type1">
+			<label for="type1">Выбрать размер</label>
+			<input name="type" type="radio" id="type2">
+			<label for="type2">Выбрать уровни сложности</label><br><br>
+			<input type="button" value="Продолжить" class="getChosenType">
+		</form>
+	</div>
+		<div class="chooseDifficultyWrap off">
+			<h3>Выберите количество карт</h3>
+			<input name="difficulty" type="radio" id="difficulty1">
+			<label for="difficulty1">Простой</label>
+			<input name="difficulty" type="radio" id="difficulty2">
+			<label for="difficulty2">Средний</label>
+			<input name="difficulty" type="radio" id="difficulty3">
+			<label for="difficulty3">Сложный</label><br><br>
+			<input type="button" value="Продолжить" class="getChosenDifficulty">
+		</div>
+		<div class="chooseSizeWrap off">
+			<h3>Выберите сложность</h3>
+			<input type="radio" id="size1" name="size">
+			<span>4x4</span>
+			<input type="radio" id="size2" name="size">
+			<span>5x6</span>
+			<input type="radio" id="size3" name="size">
+			<span>4x6</span><br><br>
+			<input type="button" value="Продолжить" class="getChosenSize">
+		</div>
+		<div class="playField">
+			<p class="timer off">00:00</p>
+		</div>
+		<div class="opponentsField">
+
+		</div>
+	<script src="js/script.js"></script>
+	<script src="js/generate.js"></script>
+</body>
+</html>
