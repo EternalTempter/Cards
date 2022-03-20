@@ -3,6 +3,9 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<title>Cards</title>
 </head>
@@ -18,56 +21,56 @@
 			<p>Сложный уровень: по умолчанию используется случайное количество 10-20 четверок карт и нужно найти одинаковые 4 карты</p>
 			<p>Количество карт выдается всегда случайно в заданном диапазоне</p>
 		</div>
-		<input type="text" id="inputPlayerName" placeholder="Ваше имя">
-		<input type="button" class="removeGameInfo" value="Начать" disabled><br>
-		<input type="text" id="inputServerPlayerName" placeholder="Ваше имя">
+		<input type="input" placeholder="Введите ваше имя" class="inputPlayerName">
+		<div class="chooseGameType">
+			<input type="button" class="classicGameButton" value="Обычная игра" disabled> 
+			<input type="button" class="onlineGameButton" value="Онлайн игра" disabled> 
+		</div>
+	</div>
+	<div class="serverModeWrap off">
+		<h2>Создать / присоединиться к текущей игре</h2>
+		<div class="chooseServerSetting">
+			<input type="button" id="createServerGame" value="Создать свою игру">
+			<input type="button" id="joinServerGame" value="Присоединиться к существующей"> 
+		</div>
+	</div>
+	<div class="joinServerGameWrap off">
+		<h2>Введите идентификатор игры</h2>
 		<input type="text" id="inputId" placeholder="id игры">
 		<input type="button" id="joinGame" value="Присоединиться к игре" disabled>
 	</div>
 	<div class="chooseModeWrap off">
-		<h3>Выберите режим игры</h3>
-		<form>
-			<input name="mode" type="radio" id="mode1">
-			<label for="mode1">Таймер обратного отсчета</label>
-			<input name="mode" type="radio" id="mode2">
-			<label for="mode2">Подсчет длительности раунда</label><br><br>
-			<input type="button" value="Продолжить" class="removeChooseMode">
-		</form>
+		<h2>Выберите режим игры</h2>
+		<div class="chooseMode">
+			<input type="button" id="timerMode" value="Подсчет длительности раунда">
+			<input type="button" id="countdownMode" value="Таймер обратного отсчета">
+		</div>
 	</div>
 	<div class="chooseTypeWrap off">
-		<h3>Выберите количество карт, либо уровень сложности</h3>
-		<form>
-			<input name="type" type="radio" id="type1">
-			<label for="type1">Выбрать размер</label>
-			<input name="type" type="radio" id="type2">
-			<label for="type2">Выбрать уровни сложности</label><br><br>
-			<input type="button" value="Продолжить" class="getChosenType">
-		</form>
+		<h2>Выберите количество карт, либо уровень сложности</h2>
+		<div class="chooseType">
+			<input type="button" id="sizeType" value="Выбрать размер">
+			<input type="button" id="difficultyType" value="Выбрать уровни сложности">
+		</div>
 	</div>
 		<div class="chooseDifficultyWrap off">
-			<h3>Выберите количество карт</h3>
-			<input name="difficulty" type="radio" id="difficulty1">
-			<label for="difficulty1">Простой</label>
-			<input name="difficulty" type="radio" id="difficulty2">
-			<label for="difficulty2">Средний</label>
-			<input name="difficulty" type="radio" id="difficulty3">
-			<label for="difficulty3">Сложный</label><br><br>
-			<input type="button" value="Продолжить" class="getChosenDifficulty">
+			<h2>Выберите уровень сложности</h2>
+			<div class="chooseDifficulty">
+				<input type="button" id="easyDifficulty" value="Легкий">
+				<input type="button" id="mediumDifficulty" value="Средний">
+				<input type="button" id="hardDifficulty" value="Сложный">
+			</div>
 		</div>
 		<div class="chooseSizeWrap off">
-			<h3>Выберите сложность</h3>
-			<input type="radio" id="size1" name="size">
-			<span>4x4</span>
-			<input type="radio" id="size2" name="size">
-			<span>5x6</span>
-			<input type="radio" id="size3" name="size">
-			<span>4x6</span><br><br>
-			<input type="button" value="Продолжить" class="getChosenSize">
 		</div>
-		<div class="playField">
-			<p class="timer off">00:00</p>
+		<div class="playGround">
+			<div class="playField"></div>
+			<div class="gameInfoWrap">
+				<p class="timer off">00:00</p>
+				<p class="gameId"></p>
+			</div>
 		</div>
-		<div class="opponentsField">
+		<div class="opponentsField off">
 
 		</div>
 	<script src="js/script.js"></script>

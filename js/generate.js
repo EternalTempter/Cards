@@ -1,14 +1,7 @@
 'use strict';
 let images = [];
 let randomArray = [];
-
-let easyTurns = 0;
-let mediumTurns = 0;
-let hardTurns = 0;
-let firstCard;
-let secondCard;
-let thirdCard;
-let forthCard;
+var cardCords = [];
 
 let timerId;
 
@@ -19,23 +12,20 @@ let winInterval;
 
 let calculateDurationInterval;
 
+let serverData = {difficulty: 'пусто'};
+
 let playField = document.querySelector('.playField');
 for(let i = 1;i <= 30; i++){
 	images.push(String(i) + '.jpg');
 }
 function generateWithDifficulty(){
-	startTimer();
-
-	if(easyDifficulty){
-		difficulty = 'Легкая сложность';
+	if(difficulty == 'Легко'){
 		makeArray([6,6],2);
 	}
-	else if(mediumDifficulty){
-		difficulty = 'Средняя сложность';
+	else if(difficulty == 'Средне'){
 		makeArray([10,30],3);
 	}
 	else{
-		difficulty = 'Сложная сложность';
 		makeArray([10,20],4);
 	}
 }
@@ -50,30 +40,26 @@ function makeArray(range,cloneTimes){
 	}
 	shuffle(multipliedArray);
 	buildField(multipliedArray);
+	(calculationDurationMode) ? startTimer(0,1) : startTimer(120,-1);
 	setEvents();
+}
+function checkForUnique(number){		
+	return (randomArray.includes(images[number])) ? checkForUnique(getRandomNumber(0,29)) : number;
+}
+function shuffle(array) {
+	  for (let i = array.length - 1; i > 0; i--) {
+		let j = Math.floor(Math.random() * (i + 1)); 
+		[array[i], array[j]] = [array[j], array[i]];
+	  }
+	console.log(array);
 }
 function buildField(array){
 	for(let i = 0;i < array.length;i++){
 		playField.innerHTML += '<img src="img/' + array[i] + '" class="closed bordered size">';
 	}
 }
-function shuffle(array) {
-  	for (let i = array.length - 1; i > 0; i--) {
-    	let j = Math.floor(Math.random() * (i + 1)); 
-    	[array[i], array[j]] = [array[j], array[i]];
-  	}
-	console.log(array);
-}
 function getRandomNumber(min,max){
 	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-function checkForUnique(number){	
-	console.log(number);
-	if(randomArray.includes(images[number])){
-		return checkForUnique(getRandomNumber(0,29));
-	}
-	else
-		return number;
 }
 
 async function sendRequest(content)
@@ -86,120 +72,72 @@ async function sendRequest(content)
 			body: content
 		})
     .then(response => response.json())
-  	.then(data => console.log(data));
+  	.then(data => putServerData(JSON.parse(data)));
+}
+function putServerData(data){
+	setTimeout(() => {
+		serverData = data;
+		if(serverGame)
+			document.querySelector('.gameId').innerHTML = 'Уникальный идентификатор игры: ' + serverData.id;
+
+		setInterval(function(){
+			fetch('ajax.php?say='+ cardCords +'&id='+serverData.id+'&user='+ playerName)
+				.then(response => response.json())
+				.then(json => console.log((json)));
+		},500)
+	},200);
 }
 function setEvents(){
-	sendRequest(JSON.stringify({name:playerName, difficulty:difficulty, cardsCount:playField.childElementCount}));
-
+	if(!isJoined)
+		sendRequest(JSON.stringify({name:playerName, difficulty:difficulty, cardsCount:playField.childElementCount}));
+	else{
+		sendRequest(JSON.stringify({name:playerName, difficulty:difficulty, cardsCount:playField.childElementCount,id:Number(document.getElementById('inputId').value)}));
+	}
 	playField = document.querySelector('.playField');
 	for(let i = 0; i < playField.childElementCount;i++){
 		playField.children[i].addEventListener('click',function(){
-			console.log(difficulty)
 				playField.children[i].classList.toggle('opened');
 				playField.children[i].classList.toggle('closed');
-				if(easyDifficulty || serverData.difficulty == 'Легкая сложность')
-					compareCardsForEasy(playField.children[i]);
-				if(mediumDifficulty || serverData.difficulty == 'Средняя сложность')
-					compareCardsForMedium(playField.children[i]);
-				if(hardDifficulty || serverData.difficulty == 'Сложная сложность')
-					compareCardsForHard(playField.children[i]);
+				if(difficulty == 'Легко' || serverData.difficulty == 'Легкая сложность')
+					compareCards(playField.children[i],2);
+				if(difficulty == 'Средне' || serverData.difficulty == 'Средняя сложность')
+					compareCards(playField.children[i],3);
+				if(difficulty == 'Сложно' || serverData.difficulty == 'Сложная сложность')
+					compareCards(playField.children[i],4);
 
 		});
 	}
 
 	//setTimeout(() => buildOpponentsField(JSON.parse(localStorage.getItem('cardsCount'))), 100);
 }
-function compareCardsForEasy(elem){
-	if(easyTurns == 0){
-		firstCard = elem;
-		firstCard.classList.toggle('pointerEventOff');
+function compareCards(card,times){
+	let openedCards = [];
+	playField.childNodes.forEach(card => card.classList.remove('pointerEventOff'));
+	for(let i = 0;i < playField.childElementCount;i++){
+		if(playField.children[i].classList.contains('opened')){
+			playField.children[i].classList.toggle('pointerEventOff');
+			openedCards.push(playField.children[i]);
+		}
 	}
-	if(easyTurns == 1){
-		secondCard = elem;
-		secondCard.classList.toggle('pointerEventOff');
+	if(openedCards.length == times){
 		playField.style.pointerEvents = 'none';
-		if(firstCard.src == secondCard.src){
-			getCardCords([firstCard,secondCard]);
-			hideCards([firstCard,secondCard]);
-			easyTurns = 0;
-			playField.style.pointerEvents = 'auto';
-			setTimeout(checkForWin,500);
-			return;
+		for(let i = 0;i < openedCards.length; i++){
+			if(openedCards[0].src == openedCards[i].src){}
+			else{
+				closeCards(openedCards);
+				return;
+			}
 		}
-		else{
-			closeCards([firstCard,secondCard]);
-			easyTurns = 0;
-			return;
-		}
+		getCardCords(openedCards);
+		setTimeout(() => playField.childNodes.forEach(card => card.classList.remove('opened')),500);
+		hideCards(openedCards);
+		setTimeout(() => playField.style.pointerEvents = 'auto',500);
+		//setTimeout(checkForWin,500);
+		return;
 	}
-	easyTurns++;
-}
-function compareCardsForMedium(elem){
-	if(mediumTurns == 0){
-		firstCard = elem;
-		firstCard.classList.toggle('pointerEventOff');
-	}
-	if(mediumTurns == 1){
-		secondCard = elem;
-		secondCard.classList.toggle('pointerEventOff');
-	}
-	if(mediumTurns == 2){
-		thirdCard = elem;
-		thirdCard.classList.toggle('pointerEventOff');
-		playField.style.pointerEvents = 'none';
-		if(firstCard.src == secondCard.src && firstCard.src == thirdCard.src){
-			getCardCords([firstCard,secondCard,thirdCard]);
-			hideCards([firstCard,secondCard,thirdCard]);
-			mediumTurns = 0;
-			playField.style.pointerEvents = 'auto';
-			checkForWin();
-			return;
-		}
-		else{
-			closeCards([firstCard,secondCard,thirdCard]);
-			mediumTurns = 0;
-			return;
-		}
-	}
-	mediumTurns++;
-}
-function compareCardsForHard(elem){
-	if(hardTurns == 0){
-		firstCard = elem;
-		firstCard.classList.toggle('pointerEventOff');
-	}
-	if(hardTurns == 1){
-		secondCard = elem;
-		secondCard.classList.toggle('pointerEventOff');
-	}
-	if(hardTurns == 2){
-		thirdCard = elem;
-		thirdCard.classList.toggle('pointerEventOff');
-	}
-	if(hardTurns == 3){
-		forthCard = elem;
-		forthCard.classList.toggle('pointerEventOff');
-		playField.style.pointerEvents = 'none';
-		if(firstCard.src == secondCard.src && firstCard.src == thirdCard.src && firstCard.src == forthCard.src){
-			getCardCords([firstCard,secondCard,thirdCard,forthCard]);
-			hideCards([firstCard,secondCard,thirdCard,forthCard]);
-			hardTurns = 0;
-			sendRequest();
-			playField.style.pointerEvents = 'auto';
-			checkForWin();
-			return;
-		}
-		else{
-			closeCards([firstCard,secondCard,thirdCard,forthCard]);
-			hardTurns = 0;
-			return;
-		}
-	}
-	hardTurns++;
 }
 function getCardCords(cards){
-	console.log(cards);
-	let cardCords = [];
+	cardCords = [];
 	for(let i=0; i<cards[0].parentNode.childNodes.length; ++i) {
 		cards.forEach(card => {
 			if(cards[0].parentNode.childNodes.item(i) != card)
@@ -209,8 +147,8 @@ function getCardCords(cards){
 		});
 	}
 	if (cardCords.length > 0) {
-		console.log(cardCords,JSON.stringify(cardCords));
-		sendRequest(JSON.stringify({name:'asdfafasgsagsag', cords: cardCords, id: gameId}));
+		//console.log(cardCords,JSON.stringify(cardCords));
+		sendRequest(JSON.stringify({name:playerName, cords: cardCords, id: serverData.id}));
 		//setTimeout(()=>removeCards(JSON.parse(localStorage.getItem('cardsCords'))),100);
 	}
 }
@@ -240,17 +178,17 @@ function hideCards(array){
 		card.classList.toggle('hide');
 	});
 }
-function checkForWin(){
-	for(let i = 0; i < playField.childElementCount;i++){
-		if(playField.children[i].classList.contains('hide')){
-		}
-		else{	
-			return;	
-		}
-	}
-	console.log('Вы выиграли');
-	winAlert();
-}
+// function checkForWin(){
+// 	for(let i = 0; i < playField.childElementCount;i++){
+// 		if(playField.children[i].classList.contains('hide')){
+// 		}
+// 		else{	
+// 			return;	
+// 		}
+// 	}
+// 	console.log('Вы выиграли');
+// 	winAlert();
+// }
 function winAlert(){
 	alert('Победа! Вы прошли уровень за ' + addZero(minutes) + ' : ' + addZero(seconds));
 	clearInterval(calculateDurationInterval);
@@ -259,11 +197,11 @@ function winAlert(){
 function addZero(elem){
 	return (elem < 10) ? '0' + String(elem) : String(elem);
 }
-function startTimer(){
+function startTimer(sec,number){
 	let timer = document.querySelector('.timer').classList.toggle('off');
-	let seconds = 0;
+	let seconds = sec;
 	let timerId = setInterval(function(){
-		seconds++;
+		seconds += number;
 		timer = document.querySelector('.timer').innerHTML = new Date(seconds * 1000).
 						toISOString().substr(
 							(seconds < 3600) ? 14 : 11,
@@ -277,8 +215,3 @@ function buildOpponentsField(cardsCount){
 		let opponentsField = document.querySelector('.opponentsField').innerHTML += '<div class="opponentsCard"></div>';
 	}
 }
-
-// setInterval(function(){
-// 	fetch('ajax.php?say=steps&id='+gameId+'user='+)
-// 		.then()
-// },100)

@@ -1,19 +1,35 @@
 <?php
-if ($_GET['id']) {
+if (!empty($_GET['id']) && empty($_GET['say'])) {
     $data = file('settings.json');
-    for($i=0; $i<count(); ++$i) {
+    for($i=0; $i<count($data); ++$i) {
         $obj = json_decode($data[$i]);
-        if (!array_key_exists('say', $_GET) && $obj->id == $_GET['id']) {
-            echo $data[$i];
+        if ($obj->id == $_GET['id']) {
+            echo json_encode($data[$i]);
             break;
         } else {
             
         }
     }
-} else {
+}
+elseif (!empty($_GET['say'])) {
+    $data = file('settings.json');
+    for($i=0; $i<count($data); ++$i) {
+        $obj = json_decode($data[$i]);
+        if ($obj->id == $_GET['id'] && $obj->name != $_GET['user'] && !isset($obj->cords)) {
+            echo json_encode($data[$i]);
+            break;
+        } else {
+            
+        }
+    }
+}    
+else {
     $data = json_decode(file_get_contents('php://input'));
-    $data->id = time();
+    if(empty($data->id)){
+        $data->id = time();
+    }
     $json = json_encode($data);
     file_put_contents('settings.json', $json.PHP_EOL, FILE_APPEND);
-    echo $json;
+    echo json_encode($json);
 }
+ 

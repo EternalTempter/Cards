@@ -1,51 +1,74 @@
-input[type="radio"] {
-	display:  none;
+body{
+	width: 95vw;
+	height: 97vh;
+	padding: 0;
+	margin: 0;
+	background-image: url(../IMG/bg.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
 }
-input[type="radio"]:checked ~ label {
-	color: red;
+
+.gameInfoWrap, .chooseModeWrap, .chooseTypeWrap, .chooseDifficultyWrap,  .serverModeWrap, .joinServerGameWrap{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-flow: column;
 }
-.hide{
-	visibility: hidden;
-}
-.off{
-	display: none;
-}
-.playField{
-	width: 700px;
-}
-.closed{
-	filter: invert(50%);
-	transition: 0.5s;
-	transform: rotateY(180deg);
-}
-.opened{
-	filter: invert(0%);
-	transition: 0.5s;
-	transform: rotateY(0deg);
-}
-.bordered{
-	border:2px solid black;
-	margin:3px;
-}
-.size{
-	width: 90px;
-	height:90px;
-}
-.timer{
-	position: absolute;
-	left:900px;
-	top:600px;
-	width: 250px;
-	height: 100px;
+.gameInfoWrap h2, .chooseModeWrap h2, .chooseTypeWrap h2, .chooseDifficultyWrap h2,  .serverModeWrap h2, .joinServerGameWrap h2{
+	font-size: 40px;
+	color: rgb(214, 235, 255);
 	text-align: center;
-	line-height: 100px;
-	border: 3px solid black;
-	border-radius: 15px;
-	font-size: 38px;
+	font-family: "Roboto";
+	font-weight: 700;
 }
-.pointerEventOff{
-	pointer-events: none;
+.instructions{
+	font-size: 16px;
+	font-family: "Roboto";
+	font-weight: 400;
+	color: aliceblue;
 }
+.gameId{
+	font-size: 18px;
+	font-family: "Roboto";
+	font-weight: 400;
+	color: aliceblue;
+	text-align: center;
+	margin-left: auto;
+}
+.gameInfoWrap input, .joinServerGameWrap input{
+	margin-top: 5vh;
+	background: transparent;
+	border:2px solid aliceblue;
+	color: aliceblue;
+	border-radius: 1vh;
+	width:14vw;
+	height: 5vh;
+}
+
+.chooseGameType, .chooseServerSetting{
+	margin-top: 8vh;
+}
+.chooseGameType input, .chooseModeWrap input, .chooseTypeWrap input, .chooseDifficultyWrap input,  .serverModeWrap input, .joinServerGameWrap input{
+	transition: 0.8s;
+	width:18vw;
+	height: 7vh;
+	border: 3px solid rgb(214, 235, 255);
+	border-radius: 2vh;
+	margin-left:4vw;
+	background: transparent;
+	color: aliceblue;
+	cursor: pointer;
+	font-size: 14px;
+	font-family: "Roboto";
+	font-weight: 400;
+}
+.chooseGameType input:hover, .chooseModeWrap input:hover, .chooseTypeWrap input:hover, .chooseDifficultyWrap input:hover, .serverModeWrap input:hover, .joinServerGameWrap input:hover{
+	transition: 0.8s;
+	border: 3px solid rgb(149, 192, 233);
+	color: rgb(149, 192, 233);
+}
+
+
 .opponentsField{
 	position: absolute;
 	right:100px;
@@ -62,4 +85,55 @@ input[type="radio"]:checked ~ label {
 	height: 45px;
 	background-color: gray;
 	margin: 2.5px;
+}
+
+input[type="radio"] {
+	display:  none;
+}
+input[type="radio"]:checked ~ label {
+	color: red;
+}
+.hide{
+	visibility: hidden;
+}
+.off{
+	display: none;
+}	
+.playGround{
+	display: flex;
+}
+.playField{
+	width: 85vw;
+}
+.closed{
+	filter: invert(50%);
+	transition: 0.5s;
+	transform: rotateY(180deg);
+}
+.opened{
+	filter: invert(0%);
+	transition: 0.5s;
+	transform: rotateY(0deg);
+}
+.bordered{
+	border:2px solid black;
+	margin:3px;
+}
+.size{
+	width: 9vh;
+	height:6vw;
+}
+.timer{
+	color: aliceblue;
+	margin-left: auto;
+	width: 15vw;
+	height: 8vh;
+	text-align: center;
+	line-height: 8vh;
+	border: 3px solid rgb(214, 235, 255);
+	border-radius: 15px;
+	font-size: 4vw;
+}
+.pointerEventOff{
+	pointer-events: none;
 }
