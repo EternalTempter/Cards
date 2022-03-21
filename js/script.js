@@ -37,7 +37,7 @@ document.getElementById('inputId').addEventListener('input', function(){
 document.getElementById('joinGame').addEventListener('click',function(){
 	isJoined = true;
 	document.querySelector('.joinServerGameWrap').classList.toggle('off');
-		fetch('ajax.php?id='+Number(inputId.value))
+		fetch('ajax.php?id='+Number(inputId.value)+'&do=checkId')
 		.then(data => data.json())
 		.then(json => setData(JSON.parse(json)))
 });
@@ -79,16 +79,16 @@ document.getElementById('hardDifficulty').addEventListener('click',function(){
 
 function setData(data){
 	setTimeout(() => {
-		difficulty = data.difficulty;
-		gameId = data.id;
-		if(data.difficulty == 'Легко'){
-			makeArray([6,6],2);
-		}
-		else if(data.difficulty == 'Средне'){
-			makeArray([Number(data.cardsCount) / 3,Number(data.cardsCount) / 3],3);
-		}
-		else{
-			makeArray([Number(data.cardsCount) / 4,Number(data.cardsCount) / 4],4);
-		}
+			difficulty = data.difficulty;
+			gameId = data.id;
+			if(data.difficulty == 'Легко'){
+				makeArray([6,6],2);
+			}
+			else if(data.difficulty == 'Средне'){
+				makeArray([Number(data.cardsCount) / 3,Number(data.cardsCount) / 3],3);
+			}
+			else{
+				makeArray([Number(data.cardsCount) / 4,Number(data.cardsCount) / 4],4);
+			}
 	},500);	
 }

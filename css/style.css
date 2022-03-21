@@ -68,21 +68,21 @@ body{
 	color: rgb(149, 192, 233);
 }
 
-
+.opponentsLabel{
+	color: aliceblue;
+	text-align: center;
+	font-size: 2vw;
+}
 .opponentsField{
-	position: absolute;
-	right:100px;
-	top:100px;
-	width: 350px;
-	min-height: 100px;
+	width: 29vw;
 	border: 1px solid black;
 	display: flex;
 	flex-wrap: wrap;
 	margin:5px;
 }
 .opponentsCard{
-	width: 45px;
-	height: 45px;
+	width: 3vw;
+	height: 3vh;
 	background-color: gray;
 	margin: 2.5px;
 }

@@ -3,6 +3,8 @@ let images = [];
 let randomArray = [];
 var cardCords = [];
 
+let removedCards = [];
+
 let timerId;
 
 let score;
@@ -64,7 +66,7 @@ function getRandomNumber(min,max){
 
 async function sendRequest(content)
 {
-	return await fetch('ajax.php', {
+	return await fetch('ajax.php?do=put', {
 			method: 'POST',
 			headers: {
 				"Content-Type": "application/json;charset=utf-8",
@@ -81,9 +83,10 @@ function putServerData(data){
 			document.querySelector('.gameId').innerHTML = 'Уникальный идентификатор игры: ' + serverData.id;
 
 		setInterval(function(){
-			fetch('ajax.php?say='+ cardCords +'&id='+serverData.id+'&user='+ playerName)
+			fetch('ajax.php?say=cards&cords='+ cardCords +'&id='+serverData.id+'&user='+ playerName+'&do=checkMove'+'&removedCards=' + JSON.stringify(removedCards))
 				.then(response => response.json())
-				.then(json => console.log((json)));
+				.then(json => removeCards(json))
+				.then(json => console.log(json));
 		},500)
 	},200);
 }
@@ -108,7 +111,7 @@ function setEvents(){
 		});
 	}
 
-	//setTimeout(() => buildOpponentsField(JSON.parse(localStorage.getItem('cardsCount'))), 100);
+	setTimeout(() => buildOpponentsField(playField.childElementCount), 100);
 }
 function compareCards(card,times){
 	let openedCards = [];
@@ -143,24 +146,36 @@ function getCardCords(cards){
 			if(cards[0].parentNode.childNodes.item(i) != card)
 				return;
 			else
-				cardCords.push(i-2);
+				cardCords.push(i);
 		});
 	}
 	if (cardCords.length > 0) {
 		//console.log(cardCords,JSON.stringify(cardCords));
 		sendRequest(JSON.stringify({name:playerName, cords: cardCords, id: serverData.id}));
-		//setTimeout(()=>removeCards(JSON.parse(localStorage.getItem('cardsCords'))),100);
 	}
 }
 function removeCards(positions){
-	let opponentsField = document.querySelector('.opponentsField');
-	positions.forEach(position => {
-		for(let i=0; i < opponentsField.childNodes.length; ++i) {
-			if (position == i) {
-				opponentsField.childNodes[i].classList.toggle('hide');
+	setTimeout(function(){
+		if(positions != 'Игрок не походил'){
+			if(removedCards.includes(positions[0]) && removedCards.includes(positions[1])){
+				removedCards.splice(removeCards.indexOf(positions[0]),1);
+				removedCards.splice(removeCards.indexOf(positions[1]),1);
 			}
+			else{
+				removedCards = removedCards.concat(positions);
+			}
+
+			console.log(positions,removedCards);
+			let opponentsField = document.querySelector('.opponentsField');
+			positions.forEach(position => {
+				for(let i=0; i < opponentsField.childNodes.length; ++i) {
+					if (position == i) {
+						opponentsField.childNodes[i+1].classList.toggle('hide');
+					}
+				}
+			});
 		}
-	});
+	},200);
 }
 function closeCards(array){
 	setTimeout(function(){
@@ -211,6 +226,8 @@ function startTimer(sec,number){
 }
 
 function buildOpponentsField(cardsCount){
+	document.querySelector('.opponentsField').classList.toggle('off');
+	document.querySelector('.opponentsLabel').classList.toggle('off');
 	for(let i = 0;i < Number(cardsCount); i++){
 		let opponentsField = document.querySelector('.opponentsField').innerHTML += '<div class="opponentsCard"></div>';
 	}

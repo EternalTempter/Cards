@@ -1,28 +1,67 @@
 <?php
-if (!empty($_GET['id']) && empty($_GET['say'])) {
+// if (!empty($_GET['id']) && empty($_GET['say'])) {
+//     $data = file('settings.json');
+//     for($i=0; $i<count($data); ++$i) {
+//         $obj = json_decode($data[$i]);
+//         if ($obj->id == $_GET['id']) {
+//             echo json_encode($data[$i]);
+//             break;
+//         } else {
+            
+//         }
+//     }
+// }
+// elseif (!empty($_GET['say'])) {
+//     $data = file('settings.json');
+//     for($i=0; $i<count($data); ++$i) {
+//         $obj = json_decode($data[$i]);
+//         if ($obj->id == $_GET['id'] && $obj->name != $_GET['user'] && !isset($obj->cords)) {
+//             echo json_encode($data[$i]);
+//             break;
+//         } else {
+            
+//         }
+//     }
+// }    
+if($_GET['do'] == 'checkId'){
     $data = file('settings.json');
     for($i=0; $i<count($data); ++$i) {
         $obj = json_decode($data[$i]);
         if ($obj->id == $_GET['id']) {
             echo json_encode($data[$i]);
+            return;
             break;
         } else {
             
         }
     }
+    echo json_encode('Проверить не получилось');
 }
-elseif (!empty($_GET['say'])) {
+elseif ($_GET['do'] == 'checkMove') {
     $data = file('settings.json');
     for($i=0; $i<count($data); ++$i) {
         $obj = json_decode($data[$i]);
-        if ($obj->id == $_GET['id'] && $obj->name != $_GET['user'] && !isset($obj->cords)) {
-            echo json_encode($data[$i]);
-            break;
+        if ($obj->id == $_GET['id'] && $obj->name != $_GET['user'] && !empty($obj->cords)) {
+            $removedCards = json_decode($_GET['removedCards']);
+            $intersect = array_intersect($removedCards, $obj->cords);
+            if(empty($intersect)){
+                echo json_encode($obj->cords);
+                return;
+                break;
+            }
+            // for($i=0; $i<count($removedCards); ++$i) {
+            //     if($obj->cords[0] == $removedCards[$i]){
+            //         echo json_encode('Игрок не походил');
+            //         return;
+            //         break;
+            //     }
+            // }
         } else {
             
         }
     }
-}    
+    echo json_encode('Игрок не походил');
+} 
 else {
     $data = json_decode(file_get_contents('php://input'));
     if(empty($data->id)){
