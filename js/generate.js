@@ -8,6 +8,8 @@ let removedCards = [];
 let timerId;
 
 let score;
+let scoreMultiplier;
+let movesCount = 0;
 
 let timeout;
 let winInterval;
@@ -44,6 +46,12 @@ function makeArray(range,cloneTimes){
 	buildField(multipliedArray);
 	(calculationDurationMode) ? startTimer(0,1) : startTimer(120,-1);
 	setEvents();
+	setStartScore();
+}
+function setStartScore(){
+	scoreMultiplier = getRandomNumber(1,100);
+	score = (playField.childElementCount * scoreMultiplier) / 3;
+	document.querySelector('.scoreCount').innerHTML = `Количество очков: ${score}`;
 }
 function checkForUnique(number){		
 	return (randomArray.includes(images[number])) ? checkForUnique(getRandomNumber(0,29)) : number;
@@ -79,15 +87,15 @@ async function sendRequest(content)
 function putServerData(data){
 	setTimeout(() => {
 		serverData = data;
-		if(serverGame)
+		if(serverGame){
 			document.querySelector('.gameId').innerHTML = 'Уникальный идентификатор игры: ' + serverData.id;
-
-		setInterval(function(){
-			fetch('ajax.php?say=cards&cords='+ cardCords +'&id='+serverData.id+'&user='+ playerName+'&do=checkMove'+'&removedCards=' + JSON.stringify(removedCards))
-				.then(response => response.json())
-				.then(json => removeCards(json))
-				.then(json => console.log(json));
-		},500)
+			setInterval(function(){
+				fetch('ajax.php?say=cards&cords='+ cardCords +'&id='+serverData.id+'&user='+ playerName+'&do=checkMove'+'&removedCards=' + JSON.stringify(removedCards))
+					.then(response => response.json())
+					.then(json => removeCards(json))
+					.then(json => console.log(json));
+			},500)
+		}
 	},200);
 }
 function setEvents(){
@@ -111,7 +119,8 @@ function setEvents(){
 		});
 	}
 
-	setTimeout(() => buildOpponentsField(playField.childElementCount), 100);
+	if(serverGame)
+		setTimeout(() => buildOpponentsField(playField.childElementCount), 100);
 }
 function compareCards(card,times){
 	let openedCards = [];
@@ -123,19 +132,30 @@ function compareCards(card,times){
 		}
 	}
 	if(openedCards.length == times){
+		movesCount++;
+		document.querySelector('.movesCount').innerHTML = `Количество ходов: ${movesCount}`;
 		playField.style.pointerEvents = 'none';
 		for(let i = 0;i < openedCards.length; i++){
 			if(openedCards[0].src == openedCards[i].src){}
 			else{
+				if(score > 0){
+					score -= scoreMultiplier;
+					document.querySelector('.scoreCount').innerHTML = `Количество очков: ${score}`;
+				}
+				else{
+					notifyLose();
+				}
 				closeCards(openedCards);
 				return;
 			}
 		}
+		score += times * scoreMultiplier;
+		document.querySelector('.scoreCount').innerHTML = `Количество очков: ${score}`;
 		getCardCords(openedCards);
 		setTimeout(() => playField.childNodes.forEach(card => card.classList.remove('opened')),500);
 		hideCards(openedCards);
 		setTimeout(() => playField.style.pointerEvents = 'auto',500);
-		//setTimeout(checkForWin,500);
+		setTimeout(checkForWin,500);
 		return;
 	}
 }
@@ -149,7 +169,7 @@ function getCardCords(cards){
 				cardCords.push(i);
 		});
 	}
-	if (cardCords.length > 0) {
+	if (cardCords.length > 0 && serverGame) {
 		//console.log(cardCords,JSON.stringify(cardCords));
 		sendRequest(JSON.stringify({name:playerName, cords: cardCords, id: serverData.id}));
 	}
@@ -193,21 +213,31 @@ function hideCards(array){
 		card.classList.toggle('hide');
 	});
 }
-// function checkForWin(){
-// 	for(let i = 0; i < playField.childElementCount;i++){
-// 		if(playField.children[i].classList.contains('hide')){
-// 		}
-// 		else{	
-// 			return;	
-// 		}
-// 	}
-// 	console.log('Вы выиграли');
-// 	winAlert();
-// }
-function winAlert(){
-	alert('Победа! Вы прошли уровень за ' + addZero(minutes) + ' : ' + addZero(seconds));
-	clearInterval(calculateDurationInterval);
-	clearInterval(winInterval);
+function checkForWin(){
+	for(let i = 0; i < playField.childElementCount;i++){
+		if(!playField.childNodes[i].classList.contains('hide')){
+			return;	
+		}
+	}
+	console.log('Вы выиграли');
+	notifyWin();
+}
+function notifyWin(){
+	clearInterval(timerId);
+	playField.classList.toggle('off');
+	document.querySelector('.afterGameInfo').innerHTML = 
+			`<h1>Поздравляю, вы выиграли!<h1>
+			<p>Время игры составило: ${document.querySelector('.timer')}</p>
+			<p>Количество ходов: ${movesCount}</p>`;
+}
+function notifyLose(){
+	clearInterval(timerId);
+	playField.classList.toggle('off');
+	let loseReason = (movesCount < 0) ? 'Количество ваших очков упало до нуля' : 'Закончилось время';
+	document.querySelector('.afterGameInfo').innerHTML = 
+		`<h1>К сожалению вы проиграли<h1>
+		<p>${loseReason}</p>
+		<p>Количество ходов: ${movesCount}</p>`;
 }
 function addZero(elem){
 	return (elem < 10) ? '0' + String(elem) : String(elem);
@@ -216,7 +246,11 @@ function startTimer(sec,number){
 	let timer = document.querySelector('.timer').classList.toggle('off');
 	let seconds = sec;
 	let timerId = setInterval(function(){
-		seconds += number;
+		if(seconds >= 0)
+			seconds += number;
+		else
+			notifyLose();
+
 		timer = document.querySelector('.timer').innerHTML = new Date(seconds * 1000).
 						toISOString().substr(
 							(seconds < 3600) ? 14 : 11,

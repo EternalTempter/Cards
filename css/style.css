@@ -137,3 +137,24 @@ input[type="radio"]:checked ~ label {
 .pointerEventOff{
 	pointer-events: none;
 }
+.afterGameInfo{
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+.afterGameInfo h1{
+	color: rgb(149, 192, 233);	
+}
+.afterGameInfo p{
+	color: aliceblue;
+}
+.scoreCount{
+	text-align: center;	
+	color: aliceblue;
+}
+.movesCount{
+	color: aliceblue;
+	text-align: center;
+}
