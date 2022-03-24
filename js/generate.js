@@ -1,11 +1,10 @@
 'use strict';
-let images = [];
-let randomArray = [];
 var cardCords = [];
 
 let removedCards = [];
 
 let timerId;
+let time = 0;
 
 let score;
 let scoreMultiplier;
@@ -19,54 +18,81 @@ let calculateDurationInterval;
 let serverData = {difficulty: 'пусто'};
 
 let playField = document.querySelector('.playField');
-for(let i = 1;i <= 30; i++){
-	images.push(String(i) + '.jpg');
-}
-function generateWithDifficulty(){
-	if(difficulty == 'Легко'){
-		makeArray([6,6],2);
-	}
-	else if(difficulty == 'Средне'){
-		makeArray([10,30],3);
-	}
-	else{
-		makeArray([10,20],4);
-	}
-}
 
-function makeArray(range,cloneTimes){
-	for(let i = 1;i <= getRandomNumber(range[0],range[1]); i++){
-		randomArray.push(images[checkForUnique(getRandomNumber(0,29))]);
-	}
-	let multipliedArray = randomArray;
-	for(let i = 0;i < cloneTimes - 1;i++){
-		multipliedArray = multipliedArray.concat(randomArray);
-	}
-	shuffle(multipliedArray);
-	buildField(multipliedArray);
-	(calculationDurationMode) ? startTimer(0,1) : startTimer(120,-1);
-	setEvents();
+function createGame(cardRange){
+	let images = [];
+	let randomArray = [];
+	let multipliedArray = [];
+	images = fillArrayWithImageSources(images);
+	multipliedArray = getSettingsByDifficulty(randomArray,cardRange,multipliedArray,images);
+	let shuffledArray = shuffle(multipliedArray);
+	buildField(shuffledArray);
+	(calculationDurationMode) ? startTimer(time,1) : startTimer(time,-1);
+	setClickEvents();
 	setStartScore();
 }
-function setStartScore(){
-	scoreMultiplier = getRandomNumber(1,100);
-	score = (playField.childElementCount * scoreMultiplier) / 3;
-	document.querySelector('.scoreCount').innerHTML = `Количество очков: ${score}`;
+function fillArrayWithImageSources(array){
+	for(let i = 1;i <= 30; i++){
+		array.push(String(i) + '.jpg');
+	}
+	return array;
 }
-function checkForUnique(number){		
-	return (randomArray.includes(images[number])) ? checkForUnique(getRandomNumber(0,29)) : number;
+function getSettingsByDifficulty(randomArray,cardRange,multipliedArray,images){
+	if(difficulty == 'Легко'){
+		randomArray = randomizeArray([cardRange[0],cardRange[1]],images,randomArray);
+		multipliedArray = multiplyArray(randomArray,2);
+		time = 100;
+	}
+	else if(difficulty == 'Средне'){
+		randomArray = randomizeArray([cardRange[0],cardRange[1]],images,randomArray);	
+		multipliedArray = multiplyArray(randomArray,3);
+		time = 200;
+	}
+	else if(difficulty == 'Сложно'){
+		randomArray = randomizeArray([cardRange[0],cardRange[1]],images,randomArray);
+		multipliedArray = multiplyArray(randomArray,4);
+		time = 300;
+	}
+	else{
+		randomArray = randomizeArray([cardRange[0] / 2,cardRange[1] / 2],images,randomArray);
+		multipliedArray = multiplyArray(randomArray,2);
+		difficulty = 'Пользовательская';
+		time = 150;
+	}
+	return multipliedArray;
+}
+function randomizeArray(range,images,randomArray){
+	for(let i = 1;i <= getRandomNumber(range[0],range[1]); i++){
+		randomArray.push(checkForUnique(getRandomNumber(0,29),images,randomArray));
+	}
+	return randomArray;
+}
+function checkForUnique(number,images,randomArray){	
+	return (randomArray.includes(images[number])) ? checkForUnique(getRandomNumber(0,29),images,randomArray) : (number + 1) + '.jpg';
+}
+function multiplyArray(array,cloneTimes){
+	let multipliedArray = array;
+	for(let i = 0;i < cloneTimes - 1;i++){
+		multipliedArray = multipliedArray.concat(array);
+	}
+	return multipliedArray
 }
 function shuffle(array) {
 	  for (let i = array.length - 1; i > 0; i--) {
 		let j = Math.floor(Math.random() * (i + 1)); 
 		[array[i], array[j]] = [array[j], array[i]];
 	  }
-	console.log(array);
+	return array;
 }
 function buildField(array){
 	for(let i = 0;i < array.length;i++){
 		playField.innerHTML += '<img src="img/' + array[i] + '" class="closed bordered size">';
 	}
+}
+function setStartScore(){
+	scoreMultiplier = getRandomNumber(1,100);
+	score = (playField.childElementCount * scoreMultiplier) / 3;
+	document.querySelector('.scoreCount').innerHTML = `Количество очков: ${score}`;
 }
 function getRandomNumber(min,max){
 	return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -98,7 +124,7 @@ function putServerData(data){
 		}
 	},200);
 }
-function setEvents(){
+function setClickEvents(){
 	if(!isJoined)
 		sendRequest(JSON.stringify({name:playerName, difficulty:difficulty, cardsCount:playField.childElementCount}));
 	else{
@@ -109,7 +135,7 @@ function setEvents(){
 		playField.children[i].addEventListener('click',function(){
 				playField.children[i].classList.toggle('opened');
 				playField.children[i].classList.toggle('closed');
-				if(difficulty == 'Легко' || serverData.difficulty == 'Легкая сложность')
+				if(difficulty == 'Легко' || serverData.difficulty == 'Легкая сложность' || difficulty == 'Пользовательская')
 					compareCards(playField.children[i],2);
 				if(difficulty == 'Средне' || serverData.difficulty == 'Средняя сложность')
 					compareCards(playField.children[i],3);
@@ -170,7 +196,6 @@ function getCardCords(cards){
 		});
 	}
 	if (cardCords.length > 0 && serverGame) {
-		//console.log(cardCords,JSON.stringify(cardCords));
 		sendRequest(JSON.stringify({name:playerName, cords: cardCords, id: serverData.id}));
 	}
 }
@@ -219,20 +244,21 @@ function checkForWin(){
 			return;	
 		}
 	}
-	console.log('Вы выиграли');
 	notifyWin();
 }
 function notifyWin(){
 	clearInterval(timerId);
 	playField.classList.toggle('off');
+	document.querySelector('.gameInfo').classList.toggle('off');
 	document.querySelector('.afterGameInfo').innerHTML = 
 			`<h1>Поздравляю, вы выиграли!<h1>
-			<p>Время игры составило: ${document.querySelector('.timer')}</p>
+			<p>Время игры составило: ${document.querySelector('.timer').innerHTML}</p>
 			<p>Количество ходов: ${movesCount}</p>`;
 }
 function notifyLose(){
 	clearInterval(timerId);
 	playField.classList.toggle('off');
+	document.querySelector('.gameInfo').classList.toggle('off');
 	let loseReason = (movesCount < 0) ? 'Количество ваших очков упало до нуля' : 'Закончилось время';
 	document.querySelector('.afterGameInfo').innerHTML = 
 		`<h1>К сожалению вы проиграли<h1>
@@ -245,11 +271,11 @@ function addZero(elem){
 function startTimer(sec,number){
 	let timer = document.querySelector('.timer').classList.toggle('off');
 	let seconds = sec;
-	let timerId = setInterval(function(){
+	timerId = setInterval(function(){
 		if(seconds >= 0)
 			seconds += number;
 		else
-			notifyLose();
+			notifyLose(seconds);
 
 		timer = document.querySelector('.timer').innerHTML = new Date(seconds * 1000).
 						toISOString().substr(

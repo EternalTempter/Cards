@@ -8,13 +8,13 @@ body{
 	background-size: cover;
 }
 
-.gameInfoWrap, .chooseModeWrap, .chooseTypeWrap, .chooseDifficultyWrap,  .serverModeWrap, .joinServerGameWrap{
+.gameInfoWrap, .chooseModeWrap, .chooseTypeWrap, .chooseDifficultyWrap,  .serverModeWrap, .joinServerGameWrap, .chooseSize{
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-flow: column;
 }
-.gameInfoWrap h2, .chooseModeWrap h2, .chooseTypeWrap h2, .chooseDifficultyWrap h2,  .serverModeWrap h2, .joinServerGameWrap h2{
+.gameInfoWrap h2, .chooseModeWrap h2, .chooseTypeWrap h2, .chooseDifficultyWrap h2,  .serverModeWrap h2, .joinServerGameWrap h2, .chooseSizeWrap h2{
 	font-size: 40px;
 	color: rgb(214, 235, 255);
 	text-align: center;
@@ -35,7 +35,7 @@ body{
 	text-align: center;
 	margin-left: auto;
 }
-.gameInfoWrap input, .joinServerGameWrap input{
+.gameInfoWrap input, .joinServerGameWrap input, .chooseSizeWrap input{
 	margin-top: 5vh;
 	background: transparent;
 	border:2px solid aliceblue;
@@ -45,7 +45,7 @@ body{
 	height: 5vh;
 }
 
-.chooseGameType, .chooseServerSetting{
+.chooseGameType, .chooseServerSetting, .chooseSizeWrap{
 	margin-top: 8vh;
 }
 .chooseGameType input, .chooseModeWrap input, .chooseTypeWrap input, .chooseDifficultyWrap input,  .serverModeWrap input, .joinServerGameWrap input{
@@ -157,4 +157,9 @@ input[type="radio"]:checked ~ label {
 .movesCount{
 	color: aliceblue;
 	text-align: center;
+}
+.error{
+	color: red;
+	text-align: center;
+	margin:0 auto;
 }

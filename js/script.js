@@ -55,6 +55,19 @@ document.getElementById('countdownMode').addEventListener('click',function(){
 
 document.getElementById('sizeType').addEventListener('click',function(){
 	document.querySelector('.chooseTypeWrap').classList.toggle('off');
+	document.querySelector('.chooseSizeWrap').classList.toggle('off');
+});
+// document.getElementById('sizeInput').addEventListener('input', function(){
+// 	document.getElementById('sendSize').disabled = document.getElementById('sizeInput').value === '';
+// });
+document.getElementById('sendSize').addEventListener('click',function(){
+	let cardsAmount = Number(document.getElementById('sizeInput').value);
+	if(cardsAmount >= 2 && cardsAmount <= 60 && cardsAmount % 2 == 0){
+		document.querySelector('.chooseSizeWrap').classList.toggle('off');
+		createGame([cardsAmount,cardsAmount]);
+	}
+	else
+		document.querySelector('.chooseSizeWrap').innerHTML += '<span class="error">Количество карточек должно быть не больше 60 и не меньше 2, а также быть четным</span>';	
 });
 document.getElementById('difficultyType').addEventListener('click',function(){
 	document.querySelector('.chooseTypeWrap').classList.toggle('off');
@@ -64,31 +77,23 @@ document.getElementById('difficultyType').addEventListener('click',function(){
 document.getElementById('easyDifficulty').addEventListener('click',function(){
 	document.querySelector('.chooseDifficultyWrap').classList.toggle('off');
 	difficulty = 'Легко';
-	generateWithDifficulty();
+	createGame([6,6]);
 });
 document.getElementById('mediumDifficulty').addEventListener('click',function(){
 	document.querySelector('.chooseDifficultyWrap').classList.toggle('off');
 	difficulty = 'Средне';
-	generateWithDifficulty();
+	createGame([10,30]);
 });
 document.getElementById('hardDifficulty').addEventListener('click',function(){
 	document.querySelector('.chooseDifficultyWrap').classList.toggle('off');
 	difficulty = 'Сложно';
-	generateWithDifficulty();
+	createGame([10,20]);
 });
 
 function setData(data){
 	setTimeout(() => {
-			difficulty = data.difficulty;
-			gameId = data.id;
-			if(data.difficulty == 'Легко'){
-				makeArray([6,6],2);
-			}
-			else if(data.difficulty == 'Средне'){
-				makeArray([Number(data.cardsCount) / 3,Number(data.cardsCount) / 3],3);
-			}
-			else{
-				makeArray([Number(data.cardsCount) / 4,Number(data.cardsCount) / 4],4);
-			}
+		difficulty = data.difficulty;
+		gameId = data.id;
+		createGame();
 	},500);	
 }
