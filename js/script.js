@@ -7,6 +7,9 @@ let isJoined = false;
 var playerName;
 var difficulty;
 var gameId;
+var cardsCount;
+
+let sendSize = document.getElementById('sendSize');
 
 document.querySelector('.inputPlayerName').addEventListener('input', function(){
 	document.querySelector('.classicGameButton').disabled = document.querySelector('.inputPlayerName').value === '';
@@ -60,14 +63,14 @@ document.getElementById('sizeType').addEventListener('click',function(){
 // document.getElementById('sizeInput').addEventListener('input', function(){
 // 	document.getElementById('sendSize').disabled = document.getElementById('sizeInput').value === '';
 // });
-document.getElementById('sendSize').addEventListener('click',function(){
-	let cardsAmount = Number(document.getElementById('sizeInput').value);
+sendSize.addEventListener('click',function(){
+	let cardsAmount = document.getElementById('sizeInput').value;
 	if(cardsAmount >= 2 && cardsAmount <= 60 && cardsAmount % 2 == 0){
 		document.querySelector('.chooseSizeWrap').classList.toggle('off');
 		createGame([cardsAmount,cardsAmount]);
 	}
 	else
-		document.querySelector('.chooseSizeWrap').innerHTML += '<span class="error">Количество карточек должно быть не больше 60 и не меньше 2, а также быть четным</span>';	
+		document.querySelector('.error').innerHTML = 'Число должно быть четным и в диапазоне от 2 до 60';
 });
 document.getElementById('difficultyType').addEventListener('click',function(){
 	document.querySelector('.chooseTypeWrap').classList.toggle('off');
@@ -94,6 +97,13 @@ function setData(data){
 	setTimeout(() => {
 		difficulty = data.difficulty;
 		gameId = data.id;
-		createGame();
+		cardsCount = data.cardsCount;
+		(data.calculationDurationMode) ? calculationDurationMode = true : calculationDurationMode = false;
+		if(difficulty = 'Легко')
+			createGame([cardsCount / 2,cardsCount / 2]);
+		else if(difficulty = 'Легко')
+			createGame([cardsCount / 3,cardsCount / 3]);
+		else
+			createGame([cardsCount / 4,cardsCount / 4]);
 	},500);	
 }

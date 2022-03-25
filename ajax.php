@@ -13,6 +13,26 @@ if($_GET['do'] == 'checkId'){
     }
     echo json_encode('Проверить не получилось');
 }
+elseif ($_GET['do'] == 'getRecords') {
+    $data = file('settings.json');
+    $array = array();
+    for($i=0; $i<count($data); ++$i) {
+        $obj = json_decode($data[$i]);
+        if (!empty($obj->time)) {
+            $subarray = array();
+            $subarray['name'] = $obj->name;
+            $subarray['time'] = $obj->time;
+            $subarray['difficulty'] = $obj->difficulty;
+            $subarray['movesCount'] = $obj->movesCount;
+            $subarray['score'] = $obj->score;
+
+            array_push($array,$subarray);
+        } else {
+            
+        }
+    }
+    echo json_encode($array);
+} 
 elseif ($_GET['do'] == 'checkMove') {
     $data = file('settings.json');
     for($i=0; $i<count($data); ++$i) {

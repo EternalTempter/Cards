@@ -56,7 +56,8 @@
 	<div class="chooseSizeWrap off">
 		<h2>Выберите уровень сложности</h2>
 		<div class="chooseSize">
-			<input type="number" id="sizeInput" placeholder="Введите количество карточек">
+			<input type="input" id="sizeInput" placeholder="Введите количество карточек">
+			<span class="error"></span>
 			<input type="button" id="sendSize" value="Начать!">
 		</div>
 	</div>
@@ -72,8 +73,8 @@
 		</div>
 		<div class="playGround">
 			<div class="playField"></div>
-			<div class="gameInfo">
-				<p class="timer off">00:00</p>
+			<div class="gameInfo off">
+				<p class="timer">00:00</p>
 				<p class="movesCount"></p>
 				<p class="scoreCount"></p>
 				<p class="gameId"></p>
@@ -82,7 +83,27 @@
 				</div>
 			</div>
 		</div>
-		<div class="afterGameInfo"></div>
+		<div class="afterGameInfo">
+		</div>
+		<div class="afterWinChoose off">
+			<input type="button" value="Играть снова" id="playAgain">
+			<input type="button" value="Смотреть таблицу рекордов" id="showRecordsTable">
+		</div>
+		<div class="recordsTable off">
+			<table cellpadding="10px" border="2px">
+				<thead>
+					<tr>	
+						<th id="easyLvlRecords">Легкий уровень</th>
+						<th id="mediumLvlRecords">Средний уровень</th>
+						<th id="hardLvlRecords">Сложный уровень</th>
+						<th id="userLvlRecords">Пользовательский уровень</th>
+					</tr>
+				</thead>
+				<tbody class="tbody">
+
+				</tbody>
+			</table>
+		</div>
 	<script src="js/script.js"></script>
 	<script src="js/generate.js"></script>
 </body>

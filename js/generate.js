@@ -5,6 +5,7 @@ let removedCards = [];
 
 let timerId;
 let time = 0;
+let currentTime;
 
 let score;
 let scoreMultiplier;
@@ -14,6 +15,7 @@ let timeout;
 let winInterval;
 
 let calculateDurationInterval;
+let checkOpponentsMove;
 
 let serverData = {difficulty: 'пусто'};
 
@@ -30,6 +32,7 @@ function createGame(cardRange){
 	(calculationDurationMode) ? startTimer(time,1) : startTimer(time,-1);
 	setClickEvents();
 	setStartScore();
+	document.querySelector('.gameInfo').classList.toggle('off');
 }
 function fillArrayWithImageSources(array){
 	for(let i = 1;i <= 30; i++){
@@ -41,23 +44,23 @@ function getSettingsByDifficulty(randomArray,cardRange,multipliedArray,images){
 	if(difficulty == 'Легко'){
 		randomArray = randomizeArray([cardRange[0],cardRange[1]],images,randomArray);
 		multipliedArray = multiplyArray(randomArray,2);
-		time = 100;
+		time = (calculationDurationMode) ? 0 : 70;
 	}
 	else if(difficulty == 'Средне'){
 		randomArray = randomizeArray([cardRange[0],cardRange[1]],images,randomArray);	
 		multipliedArray = multiplyArray(randomArray,3);
-		time = 200;
+		time = (calculationDurationMode) ? 0 : 250;
 	}
 	else if(difficulty == 'Сложно'){
 		randomArray = randomizeArray([cardRange[0],cardRange[1]],images,randomArray);
 		multipliedArray = multiplyArray(randomArray,4);
-		time = 300;
+		time = (calculationDurationMode) ? 0 : 400;
 	}
 	else{
 		randomArray = randomizeArray([cardRange[0] / 2,cardRange[1] / 2],images,randomArray);
 		multipliedArray = multiplyArray(randomArray,2);
 		difficulty = 'Пользовательская';
-		time = 150;
+		time = (calculationDurationMode) ? 0 : 150;
 	}
 	return multipliedArray;
 }
@@ -115,7 +118,7 @@ function putServerData(data){
 		serverData = data;
 		if(serverGame){
 			document.querySelector('.gameId').innerHTML = 'Уникальный идентификатор игры: ' + serverData.id;
-			setInterval(function(){
+			checkOpponentsMove = setInterval(function(){
 				fetch('ajax.php?say=cards&cords='+ cardCords +'&id='+serverData.id+'&user='+ playerName+'&do=checkMove'+'&removedCards=' + JSON.stringify(removedCards))
 					.then(response => response.json())
 					.then(json => removeCards(json))
@@ -126,9 +129,9 @@ function putServerData(data){
 }
 function setClickEvents(){
 	if(!isJoined)
-		sendRequest(JSON.stringify({name:playerName, difficulty:difficulty, cardsCount:playField.childElementCount}));
+		sendRequest(JSON.stringify({name:playerName, difficulty:difficulty, cardsCount:playField.childElementCount, calculationDurationMode:calculationDurationMode}));
 	else{
-		sendRequest(JSON.stringify({name:playerName, difficulty:difficulty, cardsCount:playField.childElementCount,id:Number(document.getElementById('inputId').value)}));
+		sendRequest(JSON.stringify({name:playerName, difficulty:difficulty, cardsCount:playField.childElementCount, calculationDurationMode:calculationDurationMode,id:Number(document.getElementById('inputId').value)}));
 	}
 	playField = document.querySelector('.playField');
 	for(let i = 0; i < playField.childElementCount;i++){
@@ -164,10 +167,9 @@ function compareCards(card,times){
 		for(let i = 0;i < openedCards.length; i++){
 			if(openedCards[0].src == openedCards[i].src){}
 			else{
-				if(score > 0){
-					score -= scoreMultiplier;
+				score -= scoreMultiplier;
+				if(score > 0)
 					document.querySelector('.scoreCount').innerHTML = `Количество очков: ${score}`;
-				}
 				else{
 					notifyLose();
 				}
@@ -220,7 +222,17 @@ function removeCards(positions){
 				}
 			});
 		}
+		isAllCardsLeft();
 	},200);
+}
+function isAllCardsLeft(){
+	let opponentsField = document.querySelector('.opponentsField');
+	for(let i=0; i < opponentsField.childNodes.length - 2; i++) {
+		if (opponentsField.childNodes[i+1].classList.contains('hide')) {}
+		else
+			return;
+	}
+	notifyLose();
 }
 function closeCards(array){
 	setTimeout(function(){
@@ -248,32 +260,41 @@ function checkForWin(){
 }
 function notifyWin(){
 	clearInterval(timerId);
+	clearInterval(checkOpponentsMove);
 	playField.classList.toggle('off');
+	let resultTime = (calculationDurationMode) ? currentTime - time : time - currentTime;
+	sendRequest(JSON.stringify({name:playerName, time: resultTime, cardsCount: cardsCount,difficulty:difficulty, movesCount: movesCount, score: (score/scoreMultiplier)}));
 	document.querySelector('.gameInfo').classList.toggle('off');
 	document.querySelector('.afterGameInfo').innerHTML = 
 			`<h1>Поздравляю, вы выиграли!<h1>
-			<p>Время игры составило: ${document.querySelector('.timer').innerHTML}</p>
+			<p>Время игры составило: ${new Date(resultTime * 1000).
+				toISOString().substr((resultTime < 3600) ? 14 : 11,(resultTime < 3600) ? 5 : 8)}</p>
 			<p>Количество ходов: ${movesCount}</p>`;
+	document.querySelector('.afterWinChoose').classList.toggle('off');
 }
 function notifyLose(){
 	clearInterval(timerId);
+	clearInterval(checkOpponentsMove);
 	playField.classList.toggle('off');
 	document.querySelector('.gameInfo').classList.toggle('off');
-	let loseReason = (movesCount < 0) ? 'Количество ваших очков упало до нуля' : 'Закончилось время';
+	let loseReason = (score <= 0) ? 'Количество ваших очков упало ниже нуля' : 'Закончилось время';
 	document.querySelector('.afterGameInfo').innerHTML = 
 		`<h1>К сожалению вы проиграли<h1>
 		<p>${loseReason}</p>
 		<p>Количество ходов: ${movesCount}</p>`;
+	document.querySelector('.afterWinChoose').classList.toggle('off');
 }
 function addZero(elem){
 	return (elem < 10) ? '0' + String(elem) : String(elem);
 }
 function startTimer(sec,number){
-	let timer = document.querySelector('.timer').classList.toggle('off');
+	let timer = document.querySelector('.timer');
 	let seconds = sec;
 	timerId = setInterval(function(){
-		if(seconds >= 0)
+		if(seconds >= 0){
 			seconds += number;
+			currentTime = seconds;
+		}
 		else
 			notifyLose(seconds);
 
@@ -291,4 +312,66 @@ function buildOpponentsField(cardsCount){
 	for(let i = 0;i < Number(cardsCount); i++){
 		let opponentsField = document.querySelector('.opponentsField').innerHTML += '<div class="opponentsCard"></div>';
 	}
+}
+document.getElementById('playAgain').addEventListener('click',function(){
+	document.querySelector('.gameInfo').classList.toggle('off');
+	document.querySelector('.afterWinChoose').classList.toggle('off');
+	document.querySelector('.afterGameInfo').classList.toggle('off');
+	document.querySelector('.gameInfoWrap').classList.toggle('off');
+	document.querySelector('.gameInfo').classList.toggle('off');
+	document.querySelector('#showRecordsTable').classList.toggle('off');
+	playField.innerHTML = '';
+	movesCount = 0;
+	document.querySelector('.timer').innerHTML = '00:00';
+	document.querySelector('.movesCount').innerHTML = '';
+	document.querySelector('.inputPlayerName').value = '';
+	countdownTimerMode = false;
+	calculationDurationMode = false;
+	document.querySelector('.afterGameInfo').innerHTML = '';
+	playField.classList.toggle('off');
+	if(!document.querySelector('.recordsTable').classList.contains('off'))
+		document.querySelector('.recordsTable').classList.toggle('off');
+	else
+		document.querySelector('#showRecordsTable').classList.toggle('off');
+
+});
+document.getElementById('showRecordsTable').addEventListener('click',function(){
+	document.querySelector('#showRecordsTable').classList.toggle('off');
+	document.querySelector('.recordsTable').classList.toggle('off');
+	fetch('ajax.php?do=getRecords')
+		.then(response => response.json())
+		.then(json => setRecordsData(json));
+});
+function setRecordsData(data){
+	setTimeout(function(){
+		let recordsData = data;
+		let userDifficulty = (sortByTime(recordsData.filter((elem) => elem.difficulty == 'Пользовательская'))).filter((elem,index) => index < 10);
+		let easyDifficulty = (sortByTime(recordsData.filter((elem) => elem.difficulty == 'Легко'))).filter((elem,index) => index < 10);
+		let mediumDifficulty = (sortByTime(recordsData.filter((elem) => elem.difficulty == 'Средне'))).filter((elem,index) => index < 10);
+		let hardDifficulty = (sortByTime(recordsData.filter((elem) => elem.difficulty == 'Сложно'))).filter((elem,index) => index < 10);
+		document.getElementById('easyLvlRecords').addEventListener('click',() => fillRecordsTable(easyDifficulty));
+		document.getElementById('mediumLvlRecords').addEventListener('click',() => fillRecordsTable(mediumDifficulty));
+		document.getElementById('hardLvlRecords').addEventListener('click',() => fillRecordsTable(hardDifficulty));
+		document.getElementById('userLvlRecords').addEventListener('click',() => fillRecordsTable(userDifficulty));
+	},200)
+}
+function fillRecordsTable(array){
+	document.querySelector('.tbody').innerHTML = '<tr><td>Имя игрока</td><td>Время</td><td>Сложность</td><td>Количество ходов</td><td>Количество очков</td></tr>';
+	array.forEach((obj) => {
+		let tr = document.createElement('tr');
+		Array.from(Object.keys(obj)).forEach((key) => {
+			let td = document.createElement('td');
+				if(key == 'time')
+					td.innerHTML = new Date(obj[key] * 1000).toISOString().substr((obj[key] < 3600) ? 14 : 11,(obj[key] < 3600) ? 5 : 8)
+				else
+					td.innerHTML = obj[key];
+
+			tr.appendChild(td);
+		})
+		document.querySelector('.tbody').appendChild(tr);
+	});
+}
+function sortByTime(array) {
+	array.sort((a, b) => a.time > b.time ? 1 : -1);
+	return array;
 }

@@ -1,11 +1,14 @@
 body{
 	width: 95vw;
-	height: 97vh;
+	/* height: 97vh; */
 	padding: 0;
 	margin: 0;
 	background-image: url(../IMG/bg.jpg);
 	background-repeat: no-repeat;
 	background-size: cover;
+	display: flex;
+	flex-flow: column;
+	align-items: center;
 }
 
 .gameInfoWrap, .chooseModeWrap, .chooseTypeWrap, .chooseDifficultyWrap,  .serverModeWrap, .joinServerGameWrap, .chooseSize{
@@ -48,7 +51,7 @@ body{
 .chooseGameType, .chooseServerSetting, .chooseSizeWrap{
 	margin-top: 8vh;
 }
-.chooseGameType input, .chooseModeWrap input, .chooseTypeWrap input, .chooseDifficultyWrap input,  .serverModeWrap input, .joinServerGameWrap input{
+.chooseGameType input, .chooseModeWrap input, .chooseTypeWrap input, .chooseDifficultyWrap input,  .serverModeWrap input, .joinServerGameWrap input, .afterWinChoose input{
 	transition: 0.8s;
 	width:18vw;
 	height: 7vh;
@@ -62,7 +65,7 @@ body{
 	font-family: "Roboto";
 	font-weight: 400;
 }
-.chooseGameType input:hover, .chooseModeWrap input:hover, .chooseTypeWrap input:hover, .chooseDifficultyWrap input:hover, .serverModeWrap input:hover, .joinServerGameWrap input:hover{
+.chooseGameType input:hover, .chooseModeWrap input:hover, .chooseTypeWrap input:hover, .chooseDifficultyWrap input:hover, .serverModeWrap input:hover, .joinServerGameWrap input:hover, .afterWinChoose input:hover{
 	transition: 0.8s;
 	border: 3px solid rgb(149, 192, 233);
 	color: rgb(149, 192, 233);
@@ -103,7 +106,8 @@ input[type="radio"]:checked ~ label {
 	display: flex;
 }
 .playField{
-	width: 85vw;
+	width: 77vw;
+	margin-left: 14vw;
 }
 .closed{
 	filter: invert(50%);
@@ -161,5 +165,13 @@ input[type="radio"]:checked ~ label {
 .error{
 	color: red;
 	text-align: center;
-	margin:0 auto;
 }
+.recordsTable{
+	color: aliceblue;
+}
+.gameInfo{
+	margin-right: 2vw;
+}
+/* .afterWinChoose{
+	margin-left:19vw;
+} */
