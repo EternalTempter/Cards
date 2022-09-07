@@ -36,7 +36,7 @@ body{
 	font-weight: 400;
 	color: aliceblue;
 	text-align: center;
-	margin-left: auto;
+	margin-left: 3.5vw;
 }
 .gameInfoWrap input, .joinServerGameWrap input, .chooseSizeWrap input{
 	margin-top: 5vh;
@@ -77,15 +77,15 @@ body{
 	font-size: 2vw;
 }
 .opponentsField{
-	width: 29vw;
+	width: 21vw;
 	border: 1px solid black;
 	display: flex;
 	flex-wrap: wrap;
 	margin:5px;
 }
 .opponentsCard{
-	width: 3vw;
-	height: 3vh;
+	width: 1.1vw;
+	height: 1.1vh;
 	background-color: gray;
 	margin: 2.5px;
 }
@@ -107,7 +107,7 @@ input[type="radio"]:checked ~ label {
 }
 .playField{
 	width: 77vw;
-	margin-left: 14vw;
+	margin-left: 2vw;
 }
 .closed{
 	filter: invert(50%);
@@ -129,7 +129,7 @@ input[type="radio"]:checked ~ label {
 }
 .timer{
 	color: aliceblue;
-	margin-left: auto;
+	margin-left: 3.5vw;
 	width: 15vw;
 	height: 8vh;
 	text-align: center;
@@ -168,9 +168,6 @@ input[type="radio"]:checked ~ label {
 }
 .recordsTable{
 	color: aliceblue;
-}
-.gameInfo{
-	margin-right: 2vw;
 }
 /* .afterWinChoose{
 	margin-left:19vw;
